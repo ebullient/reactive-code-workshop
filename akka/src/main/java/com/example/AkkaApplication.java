@@ -1,6 +1,7 @@
 package com.example;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
@@ -12,7 +13,6 @@ import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import scala.collection.mutable.HashSet;
 
 public class AkkaApplication {
 
@@ -99,7 +99,6 @@ public class AkkaApplication {
         System.out.println("=== exercise 2c --> adjust to take first word of each letter");
         Source<String, NotUsed> src_2c = src_2b
         .groupBy(26, x -> x.charAt(0))
-        .take(1)
         .mergeSubstreams();
         dumpSourceToStdOut(src_2c);
 
@@ -113,7 +112,7 @@ public class AkkaApplication {
         Source<Pair<Integer, String>, NotUsed> pairs = lengths.zip(distinct);
 
         Source<String, NotUsed> src_2d = pairs
-        .alsoTo(getDebugSink())
+        //.alsoTo(getDebugSink())
         .groupBy(30, pair -> pair.first())
         .take(1)
         .mergeSubstreams()
