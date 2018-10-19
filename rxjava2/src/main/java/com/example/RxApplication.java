@@ -20,12 +20,28 @@ public final class RxApplication {
     }
 
     private List<String> getAsList(Observable<String> f) {
-         return f.toList().blockingGet();
+        return f.toList().blockingGet();
     }
 
     private void run(){
-        Observable<String> result = lines();
-        dumpObservableToStdOut(result);
+        Observable<String> filtered = lines()
+            .filter(x -> x.length() > 0)
+            .flatMap(x -> Observable.fromArray(x.split("\\s+")))
+            .map(x -> x.toLowerCase().replaceAll("[^a-zA-Z]",""))
+            .distinct();
+
+        // dumpObservableToStdOut(filtered);
+
+        Observable<Integer> length = filtered
+            .map(x -> x.length());
+            // .doOnNext(getDebugConsumer());
+
+        Observable<String> zip = length
+            .zipWith(filtered, Pair::new)
+            .groupBy(x -> x.getA())
+            .concatMap(x -> x.map(y -> x.getKey() + ": " + y.getB()));
+
+        dumpObservableToStdOut(zip);
     }
 
     public static void main(String[] args) throws Exception{
