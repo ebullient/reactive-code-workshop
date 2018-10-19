@@ -24,6 +24,54 @@ public final class RxApplication {
     }
 
     private void run(){
+
+        System.out.println("=== Exercise 1");
+        Observable<String> result_b_g = words()
+            .map(s -> s.replaceAll("[^a-zA-Z]","").toLowerCase())
+            .filter(s -> s.startsWith("b") || s.startsWith("g"));
+
+        dumpObservableToStdOut(result_b_g);
+        result_b_g.count().subscribe(i -> System.out.println(i));
+        result_b_g.distinct().count().subscribe(i -> System.out.println(i));
+
+        System.out.println("---");
+        Observable<String> result_b = words()
+            .map(s -> s.replaceAll("[^a-zA-Z]","").toLowerCase())
+            .filter(s -> s.startsWith("b"));
+
+        dumpObservableToStdOut(result_b);
+        result_b.count().subscribe(i -> System.out.println(i));
+        result_b.distinct().count().subscribe(i -> System.out.println(i));
+
+        System.out.println("---");
+        Observable<String> result_g = words()
+            .map(s -> s.replaceAll("[^a-zA-Z]","").toLowerCase())
+            .filter(s -> s.startsWith("g"));
+
+        dumpObservableToStdOut(result_g);
+        result_g.count().subscribe(i -> System.out.println(i));
+        result_g.distinct().count().subscribe(i -> System.out.println(i));
+
+        System.out.println("---");
+        dumpObservableToStdOut(Observable.merge(result_b.distinct(), result_g.distinct()));
+
+        System.out.println("=== Exercise 2");
+        Observable<String> group_firstLetter = words()
+            .map(s -> s.replaceAll("[^a-zA-Z]","").toLowerCase())
+            .filter(s -> s.startsWith("b") || s.startsWith("g"))
+            .groupBy(s -> s.charAt(0))
+            .doOnNext(getDebugConsumer())
+            .flatMap(v -> v);
+
+        List<String> b_g = getAsList(result_b_g);
+        List<String> group = getAsList(group_firstLetter);
+
+        System.out.println(b_g);
+        System.out.println(group);
+        System.out.println(b_g.equals(group));
+
+        System.out.println("============== ");
+
         Observable<String> filtered = lines()
             .filter(x -> x.length() > 0)
             .flatMap(x -> Observable.fromArray(x.split("\\s+")))
